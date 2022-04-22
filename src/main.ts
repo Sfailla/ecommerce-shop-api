@@ -1,32 +1,25 @@
-/**
- * Some predefined delay values (in milliseconds).
- */
-export enum Delays {
-  Short = 500,
-  Medium = 2000,
-  Long = 5000,
-}
+import express, { Express, Request, Response } from 'express'
+import dotenv from 'dotenv'
+import logger from 'morgan'
 
-/**
- * Returns a Promise<string> that resolves after a given time.
- *
- * @param {string} name - A name.
- * @param {number=} [delay=Delays.Medium] - A number of milliseconds to delay resolution of the Promise.
- * @returns {Promise<string>}
- */
-function delayedHello(
-  name: string,
-  delay: number = Delays.Medium,
-): Promise<string> {
-  return new Promise((resolve: (value?: string) => void) =>
-    setTimeout(() => resolve(`Hello, ${name}`), delay),
-  );
-}
+import { makeDbConnection } from './db/index.js'
+import { productRoutes } from './routes/index.js'
 
-// Below are examples of using ESLint errors suppression
-// Here it is suppressing a missing return type definition for the greeter function.
+dotenv.config()
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export async function greeter(name: string) {
-  return await delayedHello(name, Delays.Long);
-}
+const app: Express = express()
+
+app.use(logger('dev'))
+app.use(express.json())
+
+makeDbConnection()
+
+app.use('/api/v1/products', productRoutes)
+
+app.get('/', (req: Request, res: Response) => {
+  const body = req.body
+  console.log(body)
+  res.status(200).send('Hello World!')
+})
+
+app.listen(3000, () => console.log('...app running on port 3000!'))
