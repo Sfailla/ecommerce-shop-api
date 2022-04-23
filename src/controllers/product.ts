@@ -1,8 +1,8 @@
 import { Request, Response } from 'express'
 import { DbModel } from '../types/shared'
-import { Product, ProductClass } from '../types/product'
+import { Product, IProductController } from '../types/product'
 
-export class ProductController implements ProductClass {
+export default class ProductController implements IProductController {
   constructor(public readonly productDb: DbModel<Product>) {
     this.productDb = productDb
   }
@@ -25,7 +25,16 @@ export class ProductController implements ProductClass {
         image: req.body.image,
         countInStock: req.body.countInStock
       })
-      res.status(200).json({ message: 'Product created successfully', product })
+      res.status(200).json({ message: 'product created successfully', product })
+    } catch (error) {
+      res.status(500).send(error)
+    }
+  }
+
+  deleteProduct = async (req: Request, res: Response) => {
+    try {
+      const product: Product = await this.productDb.findByIdAndDelete(req.params.id)
+      res.status(200).json({ message: 'product deleted successfully', product })
     } catch (error) {
       res.status(500).send(error)
     }
