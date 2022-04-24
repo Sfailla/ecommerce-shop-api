@@ -13,21 +13,52 @@ export default class CategoryController implements ICategoryController {
       res.status(200).json(categories)
     } catch (error) {
       res.status(500).json({
-        message: error.message
+        success: false,
+        error
+      })
+    }
+  }
+
+  getCategory = async (req: Request, res: Response) => {
+    try {
+      const category: Category = await this.categoryDb.findById(req.params.id)
+      res.status(200).json(category)
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error
       })
     }
   }
 
   createCategory = async (req: Request, res: Response) => {
     try {
-      const category: Category = await this.categoryDb.create({
-        name: req.body.name,
-        icon: req.body.icon,
-        color: req.body.color
-      })
+      const { name, icon, color } = req.body
+      const category: Category = await this.categoryDb.create({ name, icon, color })
       res.status(200).json({ message: 'category created successfully', category })
     } catch (error) {
-      res.status(500).send(error)
+      res.status(500).json({
+        success: false,
+        error
+      })
+    }
+  }
+
+  updateCategory = async (req: Request, res: Response) => {
+    try {
+      const { name, icon, color } = req.body
+      const category: Category = await this.categoryDb.findByIdAndUpdate(
+        req.params.id,
+        { name, icon, color },
+        { new: true }
+      )
+
+      res.status(200).json({ message: 'category updated successfully', category })
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error
+      })
     }
   }
 
@@ -36,7 +67,10 @@ export default class CategoryController implements ICategoryController {
       const category: Category = await this.categoryDb.findByIdAndDelete(req.params.id)
       res.status(200).json({ message: 'category deleted successfully', category })
     } catch (error) {
-      res.status(500).send(error)
+      res.status(500).json({
+        success: false,
+        error
+      })
     }
   }
 }

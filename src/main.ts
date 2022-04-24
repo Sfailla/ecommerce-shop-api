@@ -1,4 +1,4 @@
-import express, { Express, Request, Response } from 'express'
+import express, { Application, Express, Request, Response } from 'express'
 import dotenv from 'dotenv'
 import logger from 'morgan'
 import cors from 'cors'
@@ -11,7 +11,7 @@ const isProduction = process.env.NODE_ENV === 'production'
 
 dotenv.config()
 
-const app: Express = express()
+export const app: Application = express()
 
 app.use(cors())
 app.options('*', cors())
