@@ -6,11 +6,23 @@ import { ProductModel, CategoryModel } from '../models/index.js'
 
 const productController: IProductController = new ProductController(ProductModel, CategoryModel)
 
-const { getProducts, getProduct, createProduct, updateProduct, deleteProduct } = productController
+const {
+  getProducts,
+  getProduct,
+  getProductCount,
+  getFeaturedProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct
+} = productController
 
 const router: Router = express.Router()
 
 router.get('/', getProducts)
+
+router.get('/get/product-count', getProductCount)
+
+router.get('/get/featured/:count', getFeaturedProducts)
 
 router.get('/:id', getProduct)
 
