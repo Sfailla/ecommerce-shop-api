@@ -46,12 +46,9 @@ export default class CategoryController implements ICategoryController {
 
   updateCategory = async (req: Request, res: Response) => {
     try {
-      const { name, icon, color } = req.body
-      const category: Category = await this.categoryDb.findByIdAndUpdate(
-        req.params.id,
-        { name, icon, color },
-        { new: true }
-      )
+      const category: Category = await this.categoryDb.findByIdAndUpdate(req.params.id, req.body, {
+        new: true
+      })
 
       res.status(200).json({ message: 'category updated successfully', category })
     } catch (error) {

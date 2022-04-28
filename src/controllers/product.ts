@@ -12,6 +12,18 @@ export default class ProductController implements IProductController {
     this.categoryDb = categoryDb
   }
 
+  getProductCount = async (_req: Request, res: Response) => {
+    try {
+      const productCount: number = (await this.productDb.countDocuments()) || 0
+      res.status(200).json({ productCount })
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error
+      })
+    }
+  }
+
   getProducts = async (_req: Request, res: Response) => {
     try {
       const products: Product[] = await this.productDb.find().populate('category')
@@ -30,6 +42,22 @@ export default class ProductController implements IProductController {
         await this.productDb.findById(req.params.id)
       ).populate('category')
       res.status(200).json(product)
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error
+      })
+    }
+  }
+
+  getFeaturedProducts = async (req: Request, res: Response) => {
+    try {
+      const count: number = req.params.count ? Number(req.params.count) : 0
+      const featured = await this.productDb
+        .find({ isFeatured: true })
+        .populate('category')
+        .limit(count)
+      res.status(200).json(featured)
     } catch (error) {
       res.status(500).json({
         success: false,
@@ -83,6 +111,7 @@ export default class ProductController implements IProductController {
   deleteProduct = async (req: Request, res: Response) => {
     try {
       const product: Product = await this.productDb.findByIdAndDelete(req.params.id)
+      if (!product) res.status(400).json({ message: 'product not found or invalid' })
       res.status(200).json({ message: 'product deleted successfully', product })
     } catch (error) {
       res.status(500).json({
