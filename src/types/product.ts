@@ -1,6 +1,9 @@
 import { Request, Response } from 'express'
 
-export interface IProductController {
+export interface ProductFilters {
+  categories?: string | string[]
+}
+export interface ProductClass {
   getProducts(req: Request, res: Response): Promise<void>
   getProduct(req: Request, res: Response): Promise<void>
   getProductCount(req: Request, res: Response): Promise<void>

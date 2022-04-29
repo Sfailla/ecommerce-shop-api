@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 
-export interface ICategoryController {
+export interface CategoryClass {
   getCategories(req: Request, res: Response): void
   getCategory(req: Request, res: Response): void
   createCategory(req: Request, res: Response): void

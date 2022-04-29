@@ -1,8 +1,8 @@
 import { Request, Response } from 'express'
 import { DbModel } from '../types/shared'
-import { Category, ICategoryController } from '../types/category'
+import { Category, CategoryClass } from '../types/category'
 
-export default class CategoryController implements ICategoryController {
+export default class CategoryController implements CategoryClass {
   constructor(public readonly categoryDb: DbModel<Category>) {
     this.categoryDb = categoryDb
   }

@@ -1,10 +1,10 @@
 import express, { Router } from 'express'
 
 import { ProductController } from '../controllers/index.js'
-import { IProductController } from '../types/product.js'
+import { ProductClass } from '../types/product.js'
 import { ProductModel, CategoryModel } from '../models/index.js'
 
-const productController: IProductController = new ProductController(ProductModel, CategoryModel)
+const productController: ProductClass = new ProductController(ProductModel, CategoryModel)
 
 const {
   getProducts,
