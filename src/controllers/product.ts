@@ -1,9 +1,9 @@
 import { Request, Response } from 'express'
 import { DbModel } from '../types/shared'
-import { Product, IProductController } from '../types/product'
+import { Product, ProductClass, ProductFilters } from '../types/product'
 import { Category } from '../types/category'
 
-export default class ProductController implements IProductController {
+export default class ProductController implements ProductClass {
   constructor(
     public readonly productDb: DbModel<Product>,
     public readonly categoryDb: DbModel<Category>
@@ -24,9 +24,13 @@ export default class ProductController implements IProductController {
     }
   }
 
-  getProducts = async (_req: Request, res: Response) => {
+  getProducts = async (req: Request, res: Response) => {
     try {
-      const products: Product[] = await this.productDb.find().populate('category')
+      let filters: ProductFilters = {}
+      if (req.query.categories) {
+        filters = { categories: (req.query.categories as string).split(',') }
+      }
+      const products: Product[] = await this.productDb.find(filters).populate('category')
       res.status(200).json(products)
     } catch (error) {
       res.status(500).json({
