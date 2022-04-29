@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { DbModel } from '../types/shared'
 import { User, UserClass } from '../types/user'
+import { hashPasswordBcrypt } from '../utils/helperFns.js'
 
 export default class UserController implements UserClass {
   constructor(public readonly userDb: DbModel<User>) {
@@ -33,10 +34,11 @@ export default class UserController implements UserClass {
 
   createUser = async (req: Request, res: Response) => {
     try {
+      const hashedPassword = await hashPasswordBcrypt(req.body.password)
       const user: User = await this.userDb.create({
         name: req.body.name,
         email: req.body.email,
-        password: req.body.password,
+        password: hashedPassword,
         phone: req.body.phone,
         isAdmin: req.body.isAdmin,
         street: req.body.street,

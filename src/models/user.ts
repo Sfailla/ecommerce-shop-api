@@ -19,6 +19,7 @@ userSchema.set('toJSON', {
   versionKey: false,
   transform: (_doc, ret) => {
     delete ret._id
+    delete ret.password
   }
 })
 
