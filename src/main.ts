@@ -4,7 +4,7 @@ import logger from 'morgan'
 import cors from 'cors'
 
 import { makeDbConnection } from './db/index.js'
-import { productRoutes, categoryRoutes } from './routes/index.js'
+import { productRoutes, categoryRoutes, userRoutes } from './routes/index.js'
 import { errorHandler, notFoundHandler } from './middleware/handlers.js'
 
 const isProduction = process.env.NODE_ENV === 'production'
@@ -22,6 +22,7 @@ makeDbConnection()
 
 app.use('/api/v1/products', productRoutes)
 app.use('/api/v1/categories', categoryRoutes)
+app.use('/api/v1/users', userRoutes)
 
 app.get('/', (req: Request, res: Response) => {
   const body = req.body

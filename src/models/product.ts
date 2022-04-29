@@ -17,6 +17,14 @@ const productSchema = new mongoose.Schema<Product>({
   createdAt: { type: Date, default: Date.now }
 })
 
+productSchema.set('toJSON', {
+  virtuals: true,
+  versionKey: false,
+  transform: (_doc, ret) => {
+    delete ret._id
+  }
+})
+
 const ProductModel = mongoose.model<Product>('Product', productSchema)
 
 export default ProductModel

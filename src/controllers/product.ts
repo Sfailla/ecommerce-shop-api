@@ -28,7 +28,7 @@ export default class ProductController implements ProductClass {
     try {
       let filters: ProductFilters = {}
       if (req.query.categories) {
-        filters = { categories: (req.query.categories as string).split(',') }
+        filters = { category: (req.query.categories as string).split(',') }
       }
       const products: Product[] = await this.productDb.find(filters).populate('category')
       res.status(200).json(products)

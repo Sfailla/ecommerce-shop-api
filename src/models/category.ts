@@ -8,6 +8,14 @@ const categorySchema = new mongoose.Schema<Category>({
   color: { type: String }
 })
 
+categorySchema.set('toJSON', {
+  virtuals: true,
+  versionKey: false,
+  transform: (_doc, ret) => {
+    delete ret._id
+  }
+})
+
 const CategoryModel = mongoose.model<Category>('Category', categorySchema)
 
 export default CategoryModel

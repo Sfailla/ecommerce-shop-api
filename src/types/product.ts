@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 
 export interface ProductFilters {
-  categories?: string | string[]
+  category?: string | string[]
 }
 export interface ProductClass {
   getProducts(req: Request, res: Response): Promise<void>
@@ -14,6 +14,7 @@ export interface ProductClass {
 }
 
 export interface Product {
+  id: string
   name: string
   description: string
   richDescription: string
