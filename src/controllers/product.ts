@@ -1,7 +1,8 @@
-import { Request, Response } from 'express'
+import { Request, Response, NextFunction } from 'express'
 import { DbModel } from '../types/shared'
 import { Product, ProductClass, ProductFilters } from '../types/product'
 import { Category } from '../types/category'
+import { CustomError } from '../utils/customErrors'
 
 export default class ProductController implements ProductClass {
   constructor(
@@ -12,19 +13,16 @@ export default class ProductController implements ProductClass {
     this.categoryDb = categoryDb
   }
 
-  getProductCount = async (_req: Request, res: Response) => {
+  getProductCount = async (_req: Request, res: Response, next: NextFunction) => {
     try {
       const productCount: number = (await this.productDb.countDocuments()) || 0
       res.status(200).json({ success: true, productCount })
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        error
-      })
+      next(error)
     }
   }
 
-  getProducts = async (req: Request, res: Response) => {
+  getProducts = async (req: Request, res: Response, next: NextFunction) => {
     try {
       let filters: ProductFilters = {}
       if (req.query.categories) {
@@ -33,28 +31,22 @@ export default class ProductController implements ProductClass {
       const products: Product[] = await this.productDb.find(filters).populate('category')
       res.status(200).json({ success: true, products })
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        error
-      })
+      next(error)
     }
   }
 
-  getProduct = async (req: Request, res: Response) => {
+  getProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const product: Product = await (
         await this.productDb.findById(req.params.id)
       ).populate('category')
       res.status(200).json({ success: true, product })
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        error
-      })
+      next(error)
     }
   }
 
-  getFeaturedProducts = async (req: Request, res: Response) => {
+  getFeaturedProducts = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const count: number = req.params.count ? Number(req.params.count) : 0
       const featured = await this.productDb
@@ -63,14 +55,11 @@ export default class ProductController implements ProductClass {
         .limit(count)
       res.status(200).json({ success: true, featured })
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        error
-      })
+      next(error)
     }
   }
 
-  createProduct = async (req: Request, res: Response) => {
+  createProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const category = await this.categoryDb.findById(req.body.category)
       console.log({ category: req.body.category })
@@ -91,37 +80,28 @@ export default class ProductController implements ProductClass {
       })
       res.status(200).json({ success: true, message: 'product created successfully', product })
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        error
-      })
+      next(error)
     }
   }
 
-  updateProduct = async (req: Request, res: Response) => {
+  updateProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const product: Product = await this.productDb.findByIdAndUpdate(req.params.id, req.body, {
         new: true
       })
       res.status(200).json({ success: true, message: 'product updated successfully', product })
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        error
-      })
+      next(error)
     }
   }
 
-  deleteProduct = async (req: Request, res: Response) => {
+  deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const product: Product = await this.productDb.findByIdAndDelete(req.params.id)
-      if (!product) res.status(400).json({ message: 'product not found or invalid' })
+      if (!product) throw new CustomError('issue deleting product by id')
       res.status(200).json({ success: true, message: 'product deleted successfully', product })
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        error
-      })
+      next(error)
     }
   }
 }

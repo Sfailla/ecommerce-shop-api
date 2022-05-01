@@ -1,8 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
-import { nextTick } from 'process'
 import { DbModel } from '../types/shared'
 import { User, UserClass } from '../types/user'
-import { UniqueConstraintError } from '../utils/customErrors.js'
+import { CustomError, UniqueConstraintError } from '../utils/customErrors.js'
 import { comparePasswordBcrypt, generateAuthToken, hashPasswordBcrypt } from '../utils/helperFns.js'
 
 export default class UserController implements UserClass {
@@ -25,7 +24,7 @@ export default class UserController implements UserClass {
   getUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const user: User = await this.userDb.findById(req.params.id)
-      if (!user) throw new UniqueConstraintError('User not found')
+      if (!user) throw new UniqueConstraintError('User123')
       res.status(200).json({ success: true, user })
     } catch (error) {
       next(error)

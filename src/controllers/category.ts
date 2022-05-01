@@ -1,73 +1,63 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { DbModel } from '../types/shared'
 import { Category, CategoryClass } from '../types/category'
+import { CustomError } from '../utils/customErrors'
 
 export default class CategoryController implements CategoryClass {
   constructor(public readonly categoryDb: DbModel<Category>) {
     this.categoryDb = categoryDb
   }
 
-  getCategories = async (_req: Request, res: Response) => {
+  getCategories = async (_req: Request, res: Response, next: NextFunction) => {
     try {
       const categories: Category[] = await this.categoryDb.find()
+      if (!categories) throw new CustomError('issue finding categories')
       res.status(200).json({ success: true, categories })
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        error
-      })
+      next(error)
     }
   }
 
-  getCategory = async (req: Request, res: Response) => {
+  getCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const category: Category = await this.categoryDb.findById(req.params.id)
+      if (!category) throw new CustomError('issue finding category by id')
       res.status(200).json({ success: true, category })
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        error
-      })
+      next(error)
     }
   }
 
-  createCategory = async (req: Request, res: Response) => {
+  createCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { name, icon, color } = req.body
       const category: Category = await this.categoryDb.create({ name, icon, color })
+      if (!category) throw new CustomError('issue creating category')
       res.status(200).json({ success: true, message: 'category created successfully', category })
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        error
-      })
+      next(error)
     }
   }
 
-  updateCategory = async (req: Request, res: Response) => {
+  updateCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const category: Category = await this.categoryDb.findByIdAndUpdate(req.params.id, req.body, {
         new: true
       })
-
+      if (!category) throw new CustomError('issue updating category by id')
       res.status(200).json({ success: true, message: 'category updated successfully', category })
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        error
-      })
+      next(error)
     }
   }
 
-  deleteCategory = async (req: Request, res: Response) => {
+  deleteCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const category: Category = await this.categoryDb.findByIdAndDelete(req.params.id)
+      if (!category) throw new CustomError('issue deleting category by id')
       res.status(200).json({ success: true, message: 'category deleted successfully', category })
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        error
-      })
+      next(error)
     }
   }
 }

@@ -1,18 +1,34 @@
-class CustomError extends Error {
-  code?: string
-  status?: number
-  value?: string
+enum HttpStatusCode {
+  OK = 200,
+  BAD_REQUEST = 400,
+  UNAUTHORIZED = 401,
+  FORBIDDEN = 403,
+  NOT_FOUND = 404,
+  UNIQUE_CONSTRAINT = 409,
+  INTERNAL_SERVER_ERROR = 500
+}
+
+export class CustomError extends Error {
+  public code: string
+  public status: HttpStatusCode
+
+  constructor(public readonly message: string) {
+    super(message)
+
+    this.name = 'generic-error'
+    this.code = 'GENERIC_API_ERROR'
+    this.status = HttpStatusCode.BAD_REQUEST
+  }
 }
 
 export class UniqueConstraintError extends CustomError {
-  constructor(public message: string, public value?: string) {
+  constructor(public value?: string) {
     super(`${value} must be unique`)
 
     this.name = 'unique-constraint-error'
     this.code = 'UNIQUE_CONSTRAINT_ERROR'
-    this.status = 409
-    this.message = message
-    this.value = value || 'n/a'
+    this.status = HttpStatusCode.UNIQUE_CONSTRAINT
+    this.value = value || 'value'
 
     if (CustomError.captureStackTrace) {
       CustomError.captureStackTrace(this, UniqueConstraintError)
@@ -20,30 +36,28 @@ export class UniqueConstraintError extends CustomError {
   }
 }
 
-// class TokenExpiredError extends Error {
-//   constructor(status = 403, message) {
-//     super(message)
+export class TokenExpiredError extends CustomError {
+  constructor(public message: string) {
+    super(message)
 
-//     this.status = status
-//     this.code = 'ERR_TOKEN_EXPIRED'
-//     this.name = 'TokenExpiredError'
-//     this.message = message
+    this.name = 'TokenExpiredError'
+    this.code = 'ERR_TOKEN_EXPIRED'
+    this.status = HttpStatusCode.UNAUTHORIZED
 
-//     if (Error.captureStackTrace) {
-//       Error.captureStackTrace(this, TokenExpiredError)
-//     }
-//   }
-// }
+    if (CustomError.captureStackTrace) {
+      CustomError.captureStackTrace(this, TokenExpiredError)
+    }
+  }
+}
 
 export class RequiredParameterError extends CustomError {
-  constructor(public message: string, public value?: string) {
+  constructor(public value: string = 'value') {
     super(`${value} can not be null or undefined.`)
 
     this.name = 'required-param-error'
     this.code = 'REQUIRED_PARAM_ERROR'
-    this.status = 400
-    this.message = message
-    this.value = value || 'n/a'
+    this.status = HttpStatusCode.BAD_REQUEST
+    this.value = value
 
     if (CustomError.captureStackTrace) {
       CustomError.captureStackTrace(this, RequiredParameterError)
@@ -57,8 +71,7 @@ export class ValidationError extends CustomError {
 
     this.name = 'valdiation-error'
     this.code = 'VALIDATION_ERROR'
-    this.status = 403
-    this.message = message
+    this.status = HttpStatusCode.FORBIDDEN
 
     if (CustomError.captureStackTrace) {
       CustomError.captureStackTrace(this, ValidationError)
@@ -70,10 +83,9 @@ export class UnauthorizedError extends CustomError {
   constructor(public message: string) {
     super(message)
 
-    this.status = 401
     this.code = 'UNAUTHORIZED_ERROR'
     this.name = 'unauthorized-error'
-    this.message = message
+    this.status = HttpStatusCode.UNAUTHORIZED
 
     if (CustomError.captureStackTrace) {
       CustomError.captureStackTrace(this, UnauthorizedError)

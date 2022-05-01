@@ -1,11 +1,11 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 
 export interface CategoryClass {
-  getCategories(req: Request, res: Response): void
-  getCategory(req: Request, res: Response): void
-  createCategory(req: Request, res: Response): void
-  updateCategory(req: Request, res: Response): void
-  deleteCategory(req: Request, res: Response): void
+  getCategories(req: Request, res: Response, next: NextFunction): void
+  getCategory(req: Request, res: Response, next: NextFunction): void
+  createCategory(req: Request, res: Response, next: NextFunction): void
+  updateCategory(req: Request, res: Response, next: NextFunction): void
+  deleteCategory(req: Request, res: Response, next: NextFunction): void
 }
 
 export interface Category {

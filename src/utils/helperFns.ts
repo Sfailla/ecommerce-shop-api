@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs'
 import jwt, { JwtPayload, Secret } from 'jsonwebtoken'
+import { DecodedUser } from '../types/shared'
 import { User } from '../types/user'
 
 const { compare, hash } = bcrypt
@@ -19,7 +20,10 @@ export const hashPasswordBcrypt = async (
   return await hash(password, salt)
 }
 
-export const verifyToken = async (token: string, secret: Secret): Promise<string | JwtPayload> => {
+export const verifyToken = async (
+  token: string,
+  secret: Secret
+): Promise<string | DecodedUser | JwtPayload> => {
   return verify(token, secret)
 }
 
