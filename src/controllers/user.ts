@@ -1,7 +1,9 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
+import { nextTick } from 'process'
 import { DbModel } from '../types/shared'
 import { User, UserClass } from '../types/user'
-import { hashPasswordBcrypt } from '../utils/helperFns.js'
+import { UniqueConstraintError } from '../utils/customErrors.js'
+import { comparePasswordBcrypt, generateAuthToken, hashPasswordBcrypt } from '../utils/helperFns.js'
 
 export default class UserController implements UserClass {
   constructor(public readonly userDb: DbModel<User>) {
@@ -11,7 +13,7 @@ export default class UserController implements UserClass {
   getUsers = async (_req: Request, res: Response) => {
     try {
       const users: User[] = await this.userDb.find()
-      res.status(200).json(users)
+      res.status(200).json({ success: true, users })
     } catch (error) {
       res.status(500).json({
         success: false,
@@ -20,15 +22,13 @@ export default class UserController implements UserClass {
     }
   }
 
-  getUser = async (req: Request, res: Response) => {
+  getUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const user: User = await this.userDb.findById(req.params.id)
-      res.status(200).json(user)
+      if (!user) throw new UniqueConstraintError('User not found')
+      res.status(200).json({ success: true, user })
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        error
-      })
+      next(error)
     }
   }
 
@@ -47,7 +47,7 @@ export default class UserController implements UserClass {
         zip: req.body.zip,
         country: req.body.country
       })
-      res.status(200).json({ message: 'user created successfully', user })
+      res.status(200).json({ success: true, message: 'user created successfully', user })
     } catch (error) {
       res.status(500).json({
         success: false,
@@ -62,7 +62,7 @@ export default class UserController implements UserClass {
         new: true
       })
 
-      res.status(200).json({ message: 'user updated successfully', user })
+      res.status(200).json({ success: true, message: 'user updated successfully', user })
     } catch (error) {
       res.status(500).json({
         success: false,
@@ -75,7 +75,47 @@ export default class UserController implements UserClass {
     try {
       const user: User = await this.userDb.findByIdAndDelete(req.params.id)
 
-      res.status(200).json({ message: 'user deleted successfully', user })
+      res.status(200).json({ success: true, message: 'user deleted successfully', user })
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error
+      })
+    }
+  }
+
+  // AUTHORIZATION METHODS
+
+  register = async (_req: Request, res: Response) => {
+    res.send('register')
+  }
+
+  login = async (req: Request, res: Response) => {
+    try {
+      const user: User = await this.userDb.findOne({ email: req.body.email })
+      console.log({ user })
+      if (!user) {
+        res.status(401).json({
+          success: false,
+          message: 'user not found'
+        })
+        return
+      }
+      const isPasswordValid = await comparePasswordBcrypt(req.body.password, user.password)
+      if (!isPasswordValid) {
+        res.status(401).json({
+          success: false,
+          message: 'invalid password'
+        })
+        return
+      }
+      const token = generateAuthToken(user)
+      res.status(200).json({
+        success: true,
+        message: 'user logged in successfully',
+        user,
+        token
+      })
     } catch (error) {
       res.status(500).json({
         success: false,

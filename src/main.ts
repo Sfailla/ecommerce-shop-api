@@ -24,9 +24,7 @@ app.use('/api/v1/products', productRoutes)
 app.use('/api/v1/categories', categoryRoutes)
 app.use('/api/v1/users', userRoutes)
 
-app.get('/', (req: Request, res: Response) => {
-  const body = req.body
-  console.log(body)
+app.get('/', (_req: Request, res: Response) => {
   res.status(200).send('Hello World!')
 })
 

@@ -1,8 +1,10 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 
 export interface UserClass {
+  login: (req: Request, res: Response) => Promise<void>
+  register: (req: Request, res: Response) => Promise<void>
   getUsers(req: Request, res: Response): void
-  getUser(req: Request, res: Response): void
+  getUser(req: Request, res: Response, next: NextFunction): void
   createUser(req: Request, res: Response): void
   updateUser(req: Request, res: Response): void
   deleteUser(req: Request, res: Response): void

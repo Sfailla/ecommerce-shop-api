@@ -6,9 +6,11 @@ import { UserModel } from '../models/index.js'
 
 const userController: UserClass = new UserController(UserModel)
 
-const { getUsers, getUser, createUser, updateUser, deleteUser } = userController
+const { login, getUsers, getUser, createUser, updateUser, deleteUser } = userController
 
 const router: Router = express.Router()
+
+router.post('/auth/login', login)
 
 router.get('/', getUsers)
 

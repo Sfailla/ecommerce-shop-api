@@ -15,7 +15,7 @@ export default class ProductController implements ProductClass {
   getProductCount = async (_req: Request, res: Response) => {
     try {
       const productCount: number = (await this.productDb.countDocuments()) || 0
-      res.status(200).json({ productCount })
+      res.status(200).json({ success: true, productCount })
     } catch (error) {
       res.status(500).json({
         success: false,
@@ -31,7 +31,7 @@ export default class ProductController implements ProductClass {
         filters = { category: (req.query.categories as string).split(',') }
       }
       const products: Product[] = await this.productDb.find(filters).populate('category')
-      res.status(200).json(products)
+      res.status(200).json({ success: true, products })
     } catch (error) {
       res.status(500).json({
         success: false,
@@ -45,7 +45,7 @@ export default class ProductController implements ProductClass {
       const product: Product = await (
         await this.productDb.findById(req.params.id)
       ).populate('category')
-      res.status(200).json(product)
+      res.status(200).json({ success: true, product })
     } catch (error) {
       res.status(500).json({
         success: false,
@@ -61,7 +61,7 @@ export default class ProductController implements ProductClass {
         .find({ isFeatured: true })
         .populate('category')
         .limit(count)
-      res.status(200).json(featured)
+      res.status(200).json({ success: true, featured })
     } catch (error) {
       res.status(500).json({
         success: false,
@@ -89,7 +89,7 @@ export default class ProductController implements ProductClass {
         numReviews: req.body.numReviews,
         isFeatured: req.body.isFeatured
       })
-      res.status(200).json({ message: 'product created successfully', product })
+      res.status(200).json({ success: true, message: 'product created successfully', product })
     } catch (error) {
       res.status(500).json({
         success: false,
@@ -103,7 +103,7 @@ export default class ProductController implements ProductClass {
       const product: Product = await this.productDb.findByIdAndUpdate(req.params.id, req.body, {
         new: true
       })
-      res.status(200).json({ message: 'product updated successfully', product })
+      res.status(200).json({ success: true, message: 'product updated successfully', product })
     } catch (error) {
       res.status(500).json({
         success: false,
@@ -116,7 +116,7 @@ export default class ProductController implements ProductClass {
     try {
       const product: Product = await this.productDb.findByIdAndDelete(req.params.id)
       if (!product) res.status(400).json({ message: 'product not found or invalid' })
-      res.status(200).json({ message: 'product deleted successfully', product })
+      res.status(200).json({ success: true, message: 'product deleted successfully', product })
     } catch (error) {
       res.status(500).json({
         success: false,

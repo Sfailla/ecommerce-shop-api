@@ -10,7 +10,7 @@ export default class CategoryController implements CategoryClass {
   getCategories = async (_req: Request, res: Response) => {
     try {
       const categories: Category[] = await this.categoryDb.find()
-      res.status(200).json(categories)
+      res.status(200).json({ success: true, categories })
     } catch (error) {
       res.status(500).json({
         success: false,
@@ -22,7 +22,7 @@ export default class CategoryController implements CategoryClass {
   getCategory = async (req: Request, res: Response) => {
     try {
       const category: Category = await this.categoryDb.findById(req.params.id)
-      res.status(200).json(category)
+      res.status(200).json({ success: true, category })
     } catch (error) {
       res.status(500).json({
         success: false,
@@ -35,7 +35,7 @@ export default class CategoryController implements CategoryClass {
     try {
       const { name, icon, color } = req.body
       const category: Category = await this.categoryDb.create({ name, icon, color })
-      res.status(200).json({ message: 'category created successfully', category })
+      res.status(200).json({ success: true, message: 'category created successfully', category })
     } catch (error) {
       res.status(500).json({
         success: false,
@@ -50,7 +50,7 @@ export default class CategoryController implements CategoryClass {
         new: true
       })
 
-      res.status(200).json({ message: 'category updated successfully', category })
+      res.status(200).json({ success: true, message: 'category updated successfully', category })
     } catch (error) {
       res.status(500).json({
         success: false,
@@ -62,7 +62,7 @@ export default class CategoryController implements CategoryClass {
   deleteCategory = async (req: Request, res: Response) => {
     try {
       const category: Category = await this.categoryDb.findByIdAndDelete(req.params.id)
-      res.status(200).json({ message: 'category deleted successfully', category })
+      res.status(200).json({ success: true, message: 'category deleted successfully', category })
     } catch (error) {
       res.status(500).json({
         success: false,
