@@ -3,6 +3,7 @@ import express, { Router } from 'express'
 import { ProductController } from '../controllers/index.js'
 import { ProductClass } from '../types/product.js'
 import { ProductModel, CategoryModel } from '../models/index.js'
+import { authenticate } from '../middleware/index.js'
 
 const productController: ProductClass = new ProductController(ProductModel, CategoryModel)
 
@@ -26,10 +27,10 @@ router.get('/get/featured/:count', getFeaturedProducts)
 
 router.get('/:id', getProduct)
 
-router.post('/', createProduct)
+router.post('/', authenticate, createProduct)
 
-router.put('/:id', updateProduct)
+router.put('/:id', authenticate, updateProduct)
 
-router.delete('/:id', deleteProduct)
+router.delete('/:id', authenticate, deleteProduct)
 
 export default router

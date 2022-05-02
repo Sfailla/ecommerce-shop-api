@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import { DbModel } from '../types/shared'
 import { Product, ProductClass, ProductFilters } from '../types/product'
 import { Category } from '../types/category'
-import { CustomError } from '../utils/customErrors'
+import { CustomError } from '../utils/customErrors.js'
 
 export default class ProductController implements ProductClass {
   constructor(
@@ -16,6 +16,7 @@ export default class ProductController implements ProductClass {
   getProductCount = async (_req: Request, res: Response, next: NextFunction) => {
     try {
       const productCount: number = (await this.productDb.countDocuments()) || 0
+      if (!productCount) throw new CustomError('issue finding product count')
       res.status(200).json({ success: true, productCount })
     } catch (error) {
       next(error)
@@ -29,6 +30,7 @@ export default class ProductController implements ProductClass {
         filters = { category: (req.query.categories as string).split(',') }
       }
       const products: Product[] = await this.productDb.find(filters).populate('category')
+      if (!products) throw new CustomError('issue finding products')
       res.status(200).json({ success: true, products })
     } catch (error) {
       next(error)
@@ -40,6 +42,7 @@ export default class ProductController implements ProductClass {
       const product: Product = await (
         await this.productDb.findById(req.params.id)
       ).populate('category')
+      if (!product) throw new CustomError('issue finding product by id')
       res.status(200).json({ success: true, product })
     } catch (error) {
       next(error)
@@ -53,6 +56,7 @@ export default class ProductController implements ProductClass {
         .find({ isFeatured: true })
         .populate('category')
         .limit(count)
+      if (!featured) throw new CustomError('issue finding featured products')
       res.status(200).json({ success: true, featured })
     } catch (error) {
       next(error)
@@ -62,8 +66,7 @@ export default class ProductController implements ProductClass {
   createProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const category = await this.categoryDb.findById(req.body.category)
-      console.log({ category: req.body.category })
-      if (!category) res.status(400).json({ message: 'category not found or invalid' })
+      if (!category) throw new CustomError(`issue finding category id: ${req.body.category}`)
 
       const product: Product = await this.productDb.create({
         name: req.body.name,
@@ -78,6 +81,7 @@ export default class ProductController implements ProductClass {
         numReviews: req.body.numReviews,
         isFeatured: req.body.isFeatured
       })
+      if (!product) throw new CustomError('issue creating product')
       res.status(200).json({ success: true, message: 'product created successfully', product })
     } catch (error) {
       next(error)
@@ -89,6 +93,7 @@ export default class ProductController implements ProductClass {
       const product: Product = await this.productDb.findByIdAndUpdate(req.params.id, req.body, {
         new: true
       })
+      if (!product) throw new CustomError('issue updating product')
       res.status(200).json({ success: true, message: 'product updated successfully', product })
     } catch (error) {
       next(error)
@@ -98,7 +103,7 @@ export default class ProductController implements ProductClass {
   deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const product: Product = await this.productDb.findByIdAndDelete(req.params.id)
-      if (!product) throw new CustomError('issue deleting product by id')
+      if (!product) throw new CustomError(`issue deleting product with id: ${req.params.id}`)
       res.status(200).json({ success: true, message: 'product deleted successfully', product })
     } catch (error) {
       next(error)

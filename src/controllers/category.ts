@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 import { DbModel } from '../types/shared'
 import { Category, CategoryClass } from '../types/category'
-import { CustomError } from '../utils/customErrors'
+import { CustomError } from '../utils/customErrors.js'
 
 export default class CategoryController implements CategoryClass {
   constructor(public readonly categoryDb: DbModel<Category>) {

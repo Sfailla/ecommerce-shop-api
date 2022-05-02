@@ -1,12 +1,22 @@
 import { NextFunction, Request, Response } from 'express'
 import { DbModel } from '../types/shared'
 import { User, UserClass } from '../types/user'
-import { CustomError, UniqueConstraintError } from '../utils/customErrors.js'
+import { CustomError } from '../utils/customErrors.js'
 import { comparePasswordBcrypt, generateAuthToken, hashPasswordBcrypt } from '../utils/helperFns.js'
 
 export default class UserController implements UserClass {
   constructor(public readonly userDb: DbModel<User>) {
     this.userDb = userDb
+  }
+
+  getUserCount = async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const count = await this.userDb.count()
+      if (!count) throw new CustomError('issue finding user count')
+      res.status(200).json({ success: true, count })
+    } catch (error) {
+      next(error)
+    }
   }
 
   getUsers = async (_req: Request, res: Response) => {
@@ -24,7 +34,7 @@ export default class UserController implements UserClass {
   getUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const user: User = await this.userDb.findById(req.params.id)
-      if (!user) throw new UniqueConstraintError('User123')
+      if (!user) throw new CustomError('issue finding user by id')
       res.status(200).json({ success: true, user })
     } catch (error) {
       next(error)
