@@ -18,7 +18,7 @@ export const errorHandler = (
   error: ErrorRequestHandler,
   _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ): void => {
   // const isDevelopment: boolean = req.app.get('env') === 'development'
   const { code, status, name, message, value, stack } = error as unknown as CustomError
