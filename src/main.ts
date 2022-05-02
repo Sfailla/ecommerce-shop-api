@@ -4,7 +4,7 @@ import logger from 'morgan'
 import cors from 'cors'
 
 import { makeDbConnection } from './db/index.js'
-import { productRoutes, categoryRoutes, userRoutes } from './routes/index.js'
+import { productRoutes, categoryRoutes, userRoutes, orderRoutes } from './routes/index.js'
 import { errorHandler, notFoundHandler } from './middleware/handlers.js'
 
 const isProduction = process.env.NODE_ENV === 'production'
@@ -23,6 +23,7 @@ makeDbConnection()
 app.use('/api/v1/products', productRoutes)
 app.use('/api/v1/categories', categoryRoutes)
 app.use('/api/v1/users', userRoutes)
+app.use('/api/v1/orders', orderRoutes)
 
 app.get('/', (_req: Request, res: Response) => {
   res.status(200).send('Hello World!')
