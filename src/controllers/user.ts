@@ -5,7 +5,7 @@ import { CustomError } from '../utils/customErrors.js'
 import { comparePasswordBcrypt, generateAuthToken, hashPasswordBcrypt } from '../utils/helperFns.js'
 
 export default class UserController implements UserClass {
-  constructor(public readonly userDb: DbModel<User>) {
+  constructor(private readonly userDb: DbModel<User>) {
     this.userDb = userDb
   }
 

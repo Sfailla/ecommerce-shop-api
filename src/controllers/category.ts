@@ -4,7 +4,7 @@ import { Category, CategoryClass } from '../types/category'
 import { CustomError } from '../utils/customErrors.js'
 
 export default class CategoryController implements CategoryClass {
-  constructor(public readonly categoryDb: DbModel<Category>) {
+  constructor(private readonly categoryDb: DbModel<Category>) {
     this.categoryDb = categoryDb
   }
 

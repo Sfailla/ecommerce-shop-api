@@ -6,8 +6,8 @@ import { CustomError } from '../utils/customErrors.js'
 
 export default class ProductController implements ProductClass {
   constructor(
-    public readonly productDb: DbModel<Product>,
-    public readonly categoryDb: DbModel<Category>
+    private readonly productDb: DbModel<Product>,
+    private readonly categoryDb: DbModel<Category>
   ) {
     this.productDb = productDb
     this.categoryDb = categoryDb
