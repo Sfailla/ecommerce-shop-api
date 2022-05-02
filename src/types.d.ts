@@ -1,11 +1,10 @@
-import { JwtPayload } from 'jsonwebtoken'
 import { DecodedUser } from './types/shared'
 
-declare namespace Express {
+declare module 'Express' {
   export interface Request {
-    user: string | DecodedUser | JwtPayload
+    user?: DecodedUser
   }
   export interface Response {
-    user: string | DecodedUser | JwtPayload
+    user?: DecodedUser
   }
 }
