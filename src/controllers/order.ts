@@ -1,16 +1,11 @@
 import { Request, Response, NextFunction } from 'express'
-import { Order, OrderClass } from '../types/order'
+import { Order, OrderItem, OrderClass } from '../types/order'
 import { DbModel } from '../types/shared'
 
 export default class OrderController implements OrderClass {
-  constructor(private orderDb: DbModel<Order>) // private productDb: DbModel<Product>,
-  // private orderItemDb: DbModel<OrderItem>,
-  // private categoryDb: DbModel<Category>
-  {
+  constructor(private orderDb: DbModel<Order>, private orderItemDb: DbModel<OrderItem>) {
     this.orderDb = orderDb
-    // this.productDb = productDb
-    // this.orderItemDb = orderItemDb
-    // this.categoryDb = categoryDb
+    this.orderItemDb = orderItemDb
   }
 
   getOrders = async (_req: Request, res: Response, next: NextFunction) => {
@@ -33,7 +28,14 @@ export default class OrderController implements OrderClass {
 
   createOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const order = await this.orderDb.create(req.body)
+      const orderItemIds = req.body.orderItems.map(async (orderItem: OrderItem) => {
+        const newOrderItem = await this.orderItemDb.create({
+          quantity: orderItem.quantity,
+          product: orderItem.product
+        })
+        return newOrderItem._id
+      })
+      const order = await this.orderDb.create({ ...req.body, orderItems: orderItemIds })
       res.json({ success: true, message: 'order created successfully', order })
     } catch (error) {
       next(error)

@@ -1,9 +1,9 @@
 import express, { Router } from 'express'
 import { OrderClass } from '../types/order'
 import { OrderController } from '../controllers/index.js'
-import { OrderModel } from '../models/index.js'
+import { OrderItemModel, OrderModel } from '../models/index.js'
 
-const orderController: OrderClass = new OrderController(OrderModel)
+const orderController: OrderClass = new OrderController(OrderModel, OrderItemModel)
 
 const { getOrder, getOrders, createOrder, updateOrder, deleteOrder } = orderController
 
