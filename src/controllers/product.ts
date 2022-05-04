@@ -17,7 +17,7 @@ export default class ProductController implements ProductClass {
     try {
       const productCount: number = (await this.productDb.countDocuments()) || 0
       if (!productCount) throw new CustomError('issue finding product count')
-      res.status(200).json({ success: true, productCount })
+      res.status(200).json({ success: true, itemCount: productCount })
     } catch (error) {
       next(error)
     }

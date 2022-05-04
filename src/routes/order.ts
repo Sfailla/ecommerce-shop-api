@@ -2,11 +2,11 @@ import express, { Router } from 'express'
 import { OrderClass } from '../types/order'
 import { OrderController } from '../controllers/index.js'
 import { OrderItemModel, OrderModel } from '../models/index.js'
-import { authenticate } from '../middleware/index.js'
+import { administrator, authenticate } from '../middleware/index.js'
 
 const orderController: OrderClass = new OrderController(OrderModel, OrderItemModel)
 
-const { getOrder, getOrders, getTotalSales, createOrder, updateOrder, deleteOrder } =
+const { getOrder, getOrders, getOrderCount, getTotalSales, createOrder, updateOrder, deleteOrder } =
   orderController
 
 const router: Router = express.Router()
@@ -19,6 +19,7 @@ router.delete('/:id', authenticate, deleteOrder)
 
 // ADMIN ROUTES
 
-router.get('/get/total-sales', getTotalSales)
+router.get('/get/sales', authenticate, administrator, getTotalSales)
+router.get('/get/count', authenticate, administrator, getOrderCount)
 
 export default router

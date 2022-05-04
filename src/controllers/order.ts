@@ -117,4 +117,18 @@ export default class OrderController implements OrderClass {
       next(error)
     }
   }
+
+  getOrderCount = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const orderCount: number = (await this.orderDb.countDocuments()) || 0
+      if (!orderCount) throw new CustomError('issue fetching order count')
+      res.status(200).json({
+        success: true,
+        message: `total order count is ${orderCount}`,
+        itemCount: orderCount
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
 }

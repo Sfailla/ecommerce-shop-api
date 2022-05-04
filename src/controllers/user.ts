@@ -9,7 +9,7 @@ export default class UserController implements UserClass {
     this.userDb = userDb
   }
 
-  getUserCount = async (_req: Request, res: Response, next: NextFunction) => {
+  getUserCount = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const count = await this.userDb.count()
       if (!count) throw new CustomError('issue fetching user count')
@@ -19,7 +19,7 @@ export default class UserController implements UserClass {
     }
   }
 
-  getUsers = async (_req: Request, res: Response, next: NextFunction) => {
+  getUsers = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const users: User[] = await this.userDb.find()
       if (!users) throw new CustomError('issue fetching users')
@@ -29,7 +29,7 @@ export default class UserController implements UserClass {
     }
   }
 
-  getUser = async (req: Request, res: Response, next: NextFunction) => {
+  getUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const user: User = await this.userDb.findById(req.params.id)
       if (!user) throw new CustomError(`issue finding user with id: ${req.params.id}`)
@@ -39,7 +39,7 @@ export default class UserController implements UserClass {
     }
   }
 
-  createUser = async (req: Request, res: Response, next: NextFunction) => {
+  createUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const hashedPassword = await hashPasswordBcrypt(req.body.password)
       const user: User = await this.userDb.create({ ...req.body, password: hashedPassword })
@@ -52,7 +52,7 @@ export default class UserController implements UserClass {
     }
   }
 
-  updateUser = async (req: Request, res: Response, next: NextFunction) => {
+  updateUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const user: User = await this.userDb.findByIdAndUpdate(req.params.id, req.body, {
         new: true
@@ -64,7 +64,7 @@ export default class UserController implements UserClass {
     }
   }
 
-  deleteUser = async (req: Request, res: Response, next: NextFunction) => {
+  deleteUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const user: User = await this.userDb.findByIdAndDelete(req.params.id)
       if (!user) throw new CustomError(`issue deleting user with id: ${req.params.id}`)
@@ -76,7 +76,7 @@ export default class UserController implements UserClass {
 
   // AUTHORIZATION METHODS
 
-  login = async (req: Request, res: Response, next: NextFunction) => {
+  login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const user: User = await this.userDb.findOne({ email: req.body.email })
       if (!user) throw new CustomError('issue fetching user from database')

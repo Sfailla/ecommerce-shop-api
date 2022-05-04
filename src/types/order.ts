@@ -5,6 +5,7 @@ import { User } from './user'
 export interface OrderClass {
   getOrders(req: Request, res: Response, next: NextFunction): Promise<void>
   getOrder(req: Request, res: Response, next: NextFunction): Promise<void>
+  getOrderCount(req: Request, res: Response, next: NextFunction): Promise<void>
   getTotalSales(req: Request, res: Response, next: NextFunction): Promise<void>
   createOrder(req: Request, res: Response, next: NextFunction): Promise<void>
   updateOrder(req: Request, res: Response, next: NextFunction): Promise<void>

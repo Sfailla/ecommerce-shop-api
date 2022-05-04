@@ -13,17 +13,14 @@ const { login, getUsers, getUser, getUserCount, createUser, updateUser, deleteUs
 const router: Router = express.Router()
 
 router.post('/auth/login', login)
-
-router.get('/', getUsers)
-
-router.get('/get/user-count', authenticate, administrator, getUserCount)
-
-router.get('/:id', getUser)
-
 router.post('/', createUser)
 
+router.get('/', getUsers)
+router.get('/:id', getUser)
 router.put('/:id', authenticate, updateUser)
-
 router.delete('/:id', authenticate, deleteUser)
+
+// ADMIN ROUTES
+router.get('/get/count', authenticate, administrator, getUserCount)
 
 export default router
