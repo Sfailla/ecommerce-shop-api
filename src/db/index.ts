@@ -1,14 +1,14 @@
 import mongoose from 'mongoose'
+import { CustomError } from '../utils/customErrors.js'
 
 interface MongooseOptions {
   connectTimeoutMS: number
-  dbName: string
+  dbName?: string
 }
 
 export const makeDbConnection: () => Promise<void> = async () => {
   const mongooseOptions: MongooseOptions = {
-    connectTimeoutMS: 1000,
-    dbName: 'ecommerce-shop'
+    connectTimeoutMS: 1000
   }
 
   const url: string = process.env.MONGOOSE_URI
@@ -40,6 +40,6 @@ export const makeDbConnection: () => Promise<void> = async () => {
     await mongoose.connect(url, mongooseOptions)
   } catch (err) {
     console.log(err)
-    throw new Error('Mongoose connection error')
+    throw new CustomError('Mongoose connection error')
   }
 }

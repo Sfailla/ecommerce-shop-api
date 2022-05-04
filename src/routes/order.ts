@@ -2,6 +2,7 @@ import express, { Router } from 'express'
 import { OrderClass } from '../types/order'
 import { OrderController } from '../controllers/index.js'
 import { OrderItemModel, OrderModel } from '../models/index.js'
+import { authenticate } from '../middleware/index.js'
 
 const orderController: OrderClass = new OrderController(OrderModel, OrderItemModel)
 
@@ -11,8 +12,8 @@ const router: Router = express.Router()
 
 router.get('/', getOrders)
 router.get('/:id', getOrder)
-router.post('/', createOrder)
-router.put('/:id', updateOrder)
-router.delete('/:id', deleteOrder)
+router.post('/', authenticate, createOrder)
+router.put('/:id', authenticate, updateOrder)
+router.delete('/:id', authenticate, deleteOrder)
 
 export default router

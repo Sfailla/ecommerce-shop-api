@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
+import { Category } from './category'
 
 export interface ProductFilters {
   category?: string | string[]
@@ -22,7 +23,7 @@ export interface Product {
   images: string[]
   brand: string
   price: number
-  category: string
+  category: Category
   countInStock: number
   rating: number
   numReviews: number

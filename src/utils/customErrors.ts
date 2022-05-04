@@ -18,6 +18,10 @@ export class CustomError extends Error {
     this.name = 'generic-error'
     this.code = 'GENERIC_API_ERROR'
     this.status = HttpStatusCode.BAD_REQUEST
+
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, UniqueConstraintError)
+    }
   }
 }
 

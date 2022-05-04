@@ -102,7 +102,6 @@ export default class UserController implements UserClass {
   login = async (req: Request, res: Response) => {
     try {
       const user: User = await this.userDb.findOne({ email: req.body.email })
-      console.log({ user })
       if (!user) {
         res.status(401).json({
           success: false,

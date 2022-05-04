@@ -1,16 +1,24 @@
 import { Request, Response, NextFunction } from 'express'
 import { Order, OrderItem, OrderClass } from '../types/order'
 import { DbModel } from '../types/shared'
+import { CustomError } from '../utils/customErrors.js'
 
 export default class OrderController implements OrderClass {
-  constructor(private orderDb: DbModel<Order>, private orderItemDb: DbModel<OrderItem>) {
+  constructor(public orderDb: DbModel<Order>, public orderItemDb: DbModel<OrderItem>) {
     this.orderDb = orderDb
     this.orderItemDb = orderItemDb
   }
 
   getOrders = async (_req: Request, res: Response, next: NextFunction) => {
     try {
-      const orders = await this.orderDb.find({})
+      const orders = await this.orderDb
+        .find({})
+        .populate({
+          path: 'user',
+          select: 'name'
+        })
+        .sort({ createdAt: -1 })
+      if (!orders) throw new CustomError('issue getting orders')
       res.json({ success: true, orders })
     } catch (error) {
       next(error)
@@ -19,7 +27,17 @@ export default class OrderController implements OrderClass {
 
   getOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const order = await this.orderDb.findById(req.params.id)
+      const order = await this.orderDb
+        .findById(req.params.id)
+        .populate('user', 'name')
+        .populate({
+          path: 'orderItems',
+          populate: {
+            path: 'product',
+            populate: 'category'
+          }
+        })
+      if (!order) throw new CustomError(`issue fetching order with id: ${req.params.id}`)
       res.json({ success: true, order })
     } catch (error) {
       next(error)
@@ -28,14 +46,31 @@ export default class OrderController implements OrderClass {
 
   createOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const orderItemIds = req.body.orderItems.map(async (orderItem: OrderItem) => {
-        const newOrderItem = await this.orderItemDb.create({
-          quantity: orderItem.quantity,
-          product: orderItem.product
+      const orderItemIds = await Promise.all(
+        req.body.orderItems.map(async (orderItem: OrderItem) => {
+          const newOrderItem = await this.orderItemDb.create({
+            quantity: orderItem.quantity,
+            product: orderItem.product
+          })
+          return newOrderItem._id
         })
-        return newOrderItem._id
-      })
-      const order = await this.orderDb.create({ ...req.body, orderItems: orderItemIds })
+      )
+
+      const totalPrice = await Promise.all(
+        orderItemIds.map(async (orderItemId: Pick<OrderItem, 'id'>) => {
+          const orderItem = await this.orderItemDb
+            .findById(orderItemId)
+            .populate({ path: 'product', select: 'price' })
+          const total = orderItem.product.price * orderItem.quantity
+          return total
+        })
+      )
+
+      console.log({ totalPrice })
+
+      if (!orderItemIds) throw new CustomError('issue fetching one or more order-item-id')
+      const order = await this.orderDb.create({ ...req.body, orderItems: orderItemIds, totalPrice })
+      if (!order) throw new CustomError('issue creating order')
       res.json({ success: true, message: 'order created successfully', order })
     } catch (error) {
       next(error)
@@ -45,6 +80,7 @@ export default class OrderController implements OrderClass {
   updateOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const order = await this.orderDb.findByIdAndUpdate(req.params.id, req.body, { new: true })
+      if (!order) throw new CustomError(`issue updating order with id: ${req.params.id}`)
       res.json({ success: true, message: 'order updated successfully', order })
     } catch (error) {
       next(error)
@@ -53,8 +89,13 @@ export default class OrderController implements OrderClass {
 
   deleteOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const order = await this.orderDb.findByIdAndDelete(req.params.id)
-      res.json({ success: true, message: 'order deleted successfully', order })
+      await this.orderDb.findByIdAndDelete(req.params.id).then(async (order: Order) => {
+        if (!order) throw new CustomError(`issue deleting order with id: ${req.params.id}`)
+        order.orderItems.map(async (orderItem: OrderItem) => {
+          await this.orderItemDb.findByIdAndDelete(orderItem)
+        })
+      })
+      res.json({ success: true, message: 'order deleted successfully' })
     } catch (error) {
       next(error)
     }

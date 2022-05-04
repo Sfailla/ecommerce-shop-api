@@ -22,8 +22,8 @@ router.get('/:id', getUser)
 
 router.post('/', createUser)
 
-router.put('/:id', updateUser)
+router.put('/:id', authenticate, updateUser)
 
-router.delete('/:id', deleteUser)
+router.delete('/:id', authenticate, deleteUser)
 
 export default router
