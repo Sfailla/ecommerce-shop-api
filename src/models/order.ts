@@ -10,7 +10,11 @@ const orderSchema = new mongoose.Schema<Order>({
   zip: { type: String, required: true },
   country: { type: String, required: true },
   phone: { type: String },
-  status: { type: String, required: true, default: 'pending' },
+  status: {
+    type: String,
+    enum: ['PENDING', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
+    default: 'PENDING'
+  },
   totalPrice: { type: Number },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   createdAt: { type: Date, default: Date.now }

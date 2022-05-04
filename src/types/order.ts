@@ -13,6 +13,8 @@ export interface OrderClass {
   deleteOrder(req: Request, res: Response, next: NextFunction): Promise<void>
 }
 
+export type OrderStatus = 'PENDING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED'
+
 export interface TotalSales {
   id: string
   totalSales: number
@@ -24,7 +26,7 @@ export interface Order {
   products: Product[]
   total: number
   address: string
-  status: string
+  status: OrderStatus
   createdAt: Date
 }
 
@@ -43,7 +45,7 @@ export interface Order {
   zip: string
   country: string
   phone: string
-  status: string | 'pending' | 'shipped' | 'delivered' | 'cancelled'
+  status: OrderStatus
   totalPrice: number
   user: User
   createdAt: Date
