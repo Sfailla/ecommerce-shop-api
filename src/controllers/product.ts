@@ -13,7 +13,7 @@ export default class ProductController implements ProductClass {
     this.categoryDb = categoryDb
   }
 
-  getProductCount = async (_req: Request, res: Response, next: NextFunction) => {
+  getProductCount = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const productCount: number = (await this.productDb.countDocuments()) || 0
       if (!productCount) throw new CustomError('issue finding product count')
@@ -23,7 +23,7 @@ export default class ProductController implements ProductClass {
     }
   }
 
-  getProducts = async (req: Request, res: Response, next: NextFunction) => {
+  getProducts = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       let filters: ProductFilters = {}
       if (req.query.categories) {
@@ -37,7 +37,7 @@ export default class ProductController implements ProductClass {
     }
   }
 
-  getProduct = async (req: Request, res: Response, next: NextFunction) => {
+  getProduct = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const product: Product = await (
         await this.productDb.findById(req.params.id)
@@ -49,7 +49,7 @@ export default class ProductController implements ProductClass {
     }
   }
 
-  getFeaturedProducts = async (req: Request, res: Response, next: NextFunction) => {
+  getFeaturedProducts = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const count: number = req.params.count ? Number(req.params.count) : 0
       const featured = await this.productDb
@@ -63,7 +63,7 @@ export default class ProductController implements ProductClass {
     }
   }
 
-  createProduct = async (req: Request, res: Response, next: NextFunction) => {
+  createProduct = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const category = await this.categoryDb.findById(req.body.category)
       if (!category) throw new CustomError(`issue finding category id: ${req.body.category}`)
@@ -88,7 +88,7 @@ export default class ProductController implements ProductClass {
     }
   }
 
-  updateProduct = async (req: Request, res: Response, next: NextFunction) => {
+  updateProduct = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const product: Product = await this.productDb.findByIdAndUpdate(req.params.id, req.body, {
         new: true
@@ -100,7 +100,7 @@ export default class ProductController implements ProductClass {
     }
   }
 
-  deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
+  deleteProduct = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const product: Product = await this.productDb.findByIdAndDelete(req.params.id)
       if (!product) throw new CustomError(`issue deleting product with id: ${req.params.id}`)

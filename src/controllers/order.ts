@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { Order, OrderItem, OrderClass } from '../types/order'
+import { Order, OrderItem, OrderClass, TotalSales } from '../types/order'
 import { DbModel } from '../types/shared'
 import { CustomError } from '../utils/customErrors.js'
 
@@ -9,7 +9,7 @@ export default class OrderController implements OrderClass {
     this.orderItemDb = orderItemDb
   }
 
-  getOrders = async (_req: Request, res: Response, next: NextFunction) => {
+  getOrders = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const orders = await this.orderDb
         .find({})
@@ -25,7 +25,7 @@ export default class OrderController implements OrderClass {
     }
   }
 
-  getOrder = async (req: Request, res: Response, next: NextFunction) => {
+  getOrder = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const order = await this.orderDb
         .findById(req.params.id)
@@ -44,7 +44,7 @@ export default class OrderController implements OrderClass {
     }
   }
 
-  createOrder = async (req: Request, res: Response, next: NextFunction) => {
+  createOrder = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const orderItemIds = await Promise.all(
         req.body.orderItems.map(async (orderItem: OrderItem) => {
@@ -77,7 +77,7 @@ export default class OrderController implements OrderClass {
     }
   }
 
-  updateOrder = async (req: Request, res: Response, next: NextFunction) => {
+  updateOrder = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const order = await this.orderDb.findByIdAndUpdate(req.params.id, req.body, { new: true })
       if (!order) throw new CustomError(`issue updating order with id: ${req.params.id}`)
@@ -87,7 +87,7 @@ export default class OrderController implements OrderClass {
     }
   }
 
-  deleteOrder = async (req: Request, res: Response, next: NextFunction) => {
+  deleteOrder = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       await this.orderDb.findByIdAndDelete(req.params.id).then(async (order: Order) => {
         if (!order) throw new CustomError(`issue deleting order with id: ${req.params.id}`)
@@ -103,11 +103,13 @@ export default class OrderController implements OrderClass {
 
   getTotalSales = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const totalSales = await this.orderDb.aggregate([
+      const getTotalSales: TotalSales[] = await this.orderDb.aggregate([
         { $group: { _id: null, totalSales: { $sum: '$totalPrice' } } }
       ])
+      const totalSales = Number(getTotalSales.map((sales) => sales.totalSales).join(''))
       if (!totalSales)
         throw new CustomError('issue calculating the total sales of order collection')
+      console.log(totalSales)
       res
         .status(200)
         .json({ success: true, message: `the total sales for orders is ${totalSales}`, totalSales })

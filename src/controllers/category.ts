@@ -8,7 +8,7 @@ export default class CategoryController implements CategoryClass {
     this.categoryDb = categoryDb
   }
 
-  getCategories = async (_req: Request, res: Response, next: NextFunction) => {
+  getCategories = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const categories: Category[] = await this.categoryDb.find()
       if (!categories) throw new CustomError('issue finding categories')
@@ -18,7 +18,7 @@ export default class CategoryController implements CategoryClass {
     }
   }
 
-  getCategory = async (req: Request, res: Response, next: NextFunction) => {
+  getCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const category: Category = await this.categoryDb.findById(req.params.id)
       if (!category) throw new CustomError('issue finding category by id')
@@ -28,7 +28,7 @@ export default class CategoryController implements CategoryClass {
     }
   }
 
-  createCategory = async (req: Request, res: Response, next: NextFunction) => {
+  createCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { name, icon, color } = req.body
       const category: Category = await this.categoryDb.create({ name, icon, color })
@@ -39,7 +39,7 @@ export default class CategoryController implements CategoryClass {
     }
   }
 
-  updateCategory = async (req: Request, res: Response, next: NextFunction) => {
+  updateCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const category: Category = await this.categoryDb.findByIdAndUpdate(req.params.id, req.body, {
         new: true
@@ -51,7 +51,7 @@ export default class CategoryController implements CategoryClass {
     }
   }
 
-  deleteCategory = async (req: Request, res: Response, next: NextFunction) => {
+  deleteCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const category: Category = await this.categoryDb.findByIdAndDelete(req.params.id)
       if (!category) throw new CustomError('issue deleting category by id')
