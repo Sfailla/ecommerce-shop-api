@@ -14,6 +14,7 @@ export interface OrderClass {
 }
 
 export type OrderStatus = 'PENDING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED'
+export type OrderItemId = Pick<OrderItem, 'id'>
 
 export interface TotalSales {
   id: string

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { Order, OrderItem, OrderClass, TotalSales } from '../types/order'
+import { Order, OrderItem, OrderClass, TotalSales, OrderItemId } from '../types/order'
 import { DbModel } from '../types/shared'
 import { CustomError } from '../utils/customErrors.js'
 
@@ -11,7 +11,7 @@ export default class OrderController implements OrderClass {
 
   getOrders = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const orders = await this.orderDb
+      const orders: Order[] = await this.orderDb
         .find({})
         .populate({
           path: 'user',
@@ -27,7 +27,7 @@ export default class OrderController implements OrderClass {
 
   getOrder = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const order = await this.orderDb
+      const order: Order = await this.orderDb
         .findById(req.params.id)
         .populate('user', 'name')
         .populate({
@@ -46,7 +46,7 @@ export default class OrderController implements OrderClass {
 
   createOrder = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const orderItemIds = await Promise.all(
+      const orderItemIds: OrderItemId[] = await Promise.all(
         req.body.orderItems.map(async (orderItem: OrderItem) => {
           const newOrderItem = await this.orderItemDb.create({
             quantity: orderItem.quantity,
@@ -57,7 +57,7 @@ export default class OrderController implements OrderClass {
       )
 
       const getOrderPrices = await Promise.all(
-        orderItemIds.map(async (orderItemId: Pick<OrderItem, 'id'>) => {
+        orderItemIds.map(async (orderItemId: OrderItemId) => {
           const orderItem = await this.orderItemDb
             .findById(orderItemId)
             .populate({ path: 'product', select: 'price' })
@@ -66,10 +66,14 @@ export default class OrderController implements OrderClass {
         })
       )
 
-      const totalPrice = getOrderPrices.reduce((acc, cur) => acc + cur, 0)
+      const totalPrice: number = getOrderPrices.reduce((acc, cur) => acc + cur, 0)
 
       if (!orderItemIds) throw new CustomError('issue fetching one or more order-item-id')
-      const order = await this.orderDb.create({ ...req.body, orderItems: orderItemIds, totalPrice })
+      const order: Order = await this.orderDb.create({
+        ...req.body,
+        orderItems: orderItemIds,
+        totalPrice
+      })
       if (!order) throw new CustomError('issue creating order')
       res.status(200).json({ success: true, message: 'order created successfully', order })
     } catch (error) {
@@ -79,7 +83,9 @@ export default class OrderController implements OrderClass {
 
   updateOrder = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const order = await this.orderDb.findByIdAndUpdate(req.params.id, req.body, { new: true })
+      const order: Order = await this.orderDb.findByIdAndUpdate(req.params.id, req.body, {
+        new: true
+      })
       if (!order) throw new CustomError(`issue updating order with id: ${req.params.id}`)
       res.status(200).json({ success: true, message: 'order updated successfully', order })
     } catch (error) {
@@ -134,7 +140,7 @@ export default class OrderController implements OrderClass {
 
   getAllUserOrders = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const allUserOrders = await this.orderDb
+      const allUserOrders: Order[] = await this.orderDb
         .find({ user: req.params.userId })
         .populate({
           path: 'orderItems',

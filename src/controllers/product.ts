@@ -13,16 +13,6 @@ export default class ProductController implements ProductClass {
     this.categoryDb = categoryDb
   }
 
-  getProductCount = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const productCount: number = (await this.productDb.countDocuments()) || 0
-      if (!productCount) throw new CustomError('issue finding product count')
-      res.status(200).json({ success: true, itemCount: productCount })
-    } catch (error) {
-      next(error)
-    }
-  }
-
   getProducts = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       let filters: ProductFilters = {}
@@ -49,23 +39,9 @@ export default class ProductController implements ProductClass {
     }
   }
 
-  getFeaturedProducts = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const count: number = req.params.count ? Number(req.params.count) : 0
-      const featured = await this.productDb
-        .find({ isFeatured: true })
-        .populate('category')
-        .limit(count)
-      if (!featured) throw new CustomError('issue finding featured products')
-      res.status(200).json({ success: true, featured })
-    } catch (error) {
-      next(error)
-    }
-  }
-
   createProduct = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const category = await this.categoryDb.findById(req.body.category)
+      const category: Category = await this.categoryDb.findById(req.body.category)
       if (!category) throw new CustomError(`issue finding category id: ${req.body.category}`)
 
       const product: Product = await this.productDb.create({
@@ -105,6 +81,36 @@ export default class ProductController implements ProductClass {
       const product: Product = await this.productDb.findByIdAndDelete(req.params.id)
       if (!product) throw new CustomError(`issue deleting product with id: ${req.params.id}`)
       res.status(200).json({ success: true, message: 'product deleted successfully', product })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  getFeaturedProducts = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const count: number = req.params.count ? Number(req.params.count) : 0
+      const featured: Product[] = await this.productDb
+        .find({ isFeatured: true })
+        .populate('category')
+        .limit(count)
+      if (!featured) throw new CustomError('issue finding featured products')
+      res.status(200).json({ success: true, featuredProducts: featured })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  getProductCount = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const productCount: number = (await this.productDb.countDocuments()) || 0
+      if (!productCount) throw new CustomError('issue finding product count')
+      res
+        .status(200)
+        .json({
+          success: true,
+          message: `product count is ${productCount}`,
+          itemCount: productCount
+        })
     } catch (error) {
       next(error)
     }

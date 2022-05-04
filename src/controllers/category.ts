@@ -30,8 +30,7 @@ export default class CategoryController implements CategoryClass {
 
   createCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { name, icon, color } = req.body
-      const category: Category = await this.categoryDb.create({ name, icon, color })
+      const category: Category = await this.categoryDb.create(req.body)
       if (!category) throw new CustomError('issue creating category')
       res.status(200).json({ success: true, message: 'category created successfully', category })
     } catch (error) {
