@@ -6,8 +6,16 @@ import { administrator, authenticate } from '../middleware/index.js'
 
 const orderController: OrderClass = new OrderController(OrderModel, OrderItemModel)
 
-const { getOrder, getOrders, getOrderCount, getTotalSales, createOrder, updateOrder, deleteOrder } =
-  orderController
+const {
+  getOrder,
+  getOrders,
+  getOrderCount,
+  getTotalSales,
+  getAllUserOrders,
+  createOrder,
+  updateOrder,
+  deleteOrder
+} = orderController
 
 const router: Router = express.Router()
 
@@ -21,5 +29,6 @@ router.delete('/:id', authenticate, deleteOrder)
 
 router.get('/get/sales', authenticate, administrator, getTotalSales)
 router.get('/get/count', authenticate, administrator, getOrderCount)
+router.get('/get/all-user-orders/:userId', authenticate, administrator, getAllUserOrders)
 
 export default router

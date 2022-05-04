@@ -7,6 +7,7 @@ export interface OrderClass {
   getOrder(req: Request, res: Response, next: NextFunction): Promise<void>
   getOrderCount(req: Request, res: Response, next: NextFunction): Promise<void>
   getTotalSales(req: Request, res: Response, next: NextFunction): Promise<void>
+  getAllUserOrders(req: Request, res: Response, next: NextFunction): Promise<void>
   createOrder(req: Request, res: Response, next: NextFunction): Promise<void>
   updateOrder(req: Request, res: Response, next: NextFunction): Promise<void>
   deleteOrder(req: Request, res: Response, next: NextFunction): Promise<void>

@@ -131,4 +131,23 @@ export default class OrderController implements OrderClass {
       next(error)
     }
   }
+
+  getAllUserOrders = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const allUserOrders = await this.orderDb
+        .find({ user: req.params.userId })
+        .populate({
+          path: 'orderItems',
+          populate: {
+            path: 'product',
+            populate: 'category'
+          }
+        })
+        .sort({ createdAt: -1 })
+      if (!allUserOrders) throw new CustomError(`issue getting all orders for user: ${req.user}`)
+      res.status(200).json({ success: true, orders: allUserOrders })
+    } catch (error) {
+      next(error)
+    }
+  }
 }
