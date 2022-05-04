@@ -1,10 +1,10 @@
-import { DecodedUser } from './types/shared'
+import { UserPayload } from './types/shared'
 
 declare module 'Express' {
   export interface Request {
-    user?: DecodedUser
+    user?: UserPayload
   }
   export interface Response {
-    user?: DecodedUser
+    user?: UserPayload
   }
 }
