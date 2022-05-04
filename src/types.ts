@@ -1,6 +1,6 @@
 import { UserPayload } from './types/shared'
 
-declare module 'Express' {
+declare module 'express' {
   export interface Request {
     user: UserPayload
   }
