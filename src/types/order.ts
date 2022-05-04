@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { Product } from './product'
+import { User } from './user'
 
 export interface OrderClass {
   getOrders(req: Request, res: Response, next: NextFunction): Promise<void>
@@ -11,7 +12,7 @@ export interface OrderClass {
 
 export interface Order {
   id: string
-  user: string
+  user: User
   products: Product[]
   total: number
   address: string
@@ -36,6 +37,6 @@ export interface Order {
   phone: string
   status: string | 'pending' | 'shipped' | 'delivered' | 'cancelled'
   totalPrice: number
-  user: string
+  user: User
   createdAt: Date
 }

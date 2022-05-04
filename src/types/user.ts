@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from 'express'
 
 export interface UserClass {
   login: (req: Request, res: Response, next: NextFunction) => Promise<void>
-  register: (req: Request, res: Response, next: NextFunction) => Promise<void>
   getUsers(req: Request, res: Response, next: NextFunction): void
   getUser(req: Request, res: Response, next: NextFunction): void
   getUserCount(req: Request, res: Response, next: NextFunction): void
