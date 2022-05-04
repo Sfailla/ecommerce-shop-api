@@ -21,6 +21,6 @@
     "noImplicitThis": false,
     "strictNullChecks": false
   },
-  "include": ["src/**/*", "__tests__/**/*"],
+  "include": ["src/**/*", "src/__tests__/**/*"],
   "files": ["src/types.d.ts"]
 }
