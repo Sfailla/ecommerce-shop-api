@@ -4,7 +4,7 @@ import { DbModel } from '../types/shared'
 import { CustomError } from '../utils/customErrors.js'
 
 export default class OrderController implements OrderClass {
-  constructor(public orderDb: DbModel<Order>, public orderItemDb: DbModel<OrderItem>) {
+  constructor(private orderDb: DbModel<Order>, private orderItemDb: DbModel<OrderItem>) {
     this.orderDb = orderDb
     this.orderItemDb = orderItemDb
   }
@@ -19,7 +19,7 @@ export default class OrderController implements OrderClass {
         })
         .sort({ createdAt: -1 })
       if (!orders) throw new CustomError('issue getting orders')
-      res.json({ success: true, orders })
+      res.status(200).json({ success: true, orders })
     } catch (error) {
       next(error)
     }
@@ -38,7 +38,7 @@ export default class OrderController implements OrderClass {
           }
         })
       if (!order) throw new CustomError(`issue fetching order with id: ${req.params.id}`)
-      res.json({ success: true, order })
+      res.status(200).json({ success: true, order })
     } catch (error) {
       next(error)
     }
@@ -56,7 +56,7 @@ export default class OrderController implements OrderClass {
         })
       )
 
-      const totalPrice = await Promise.all(
+      const getOrderPrices = await Promise.all(
         orderItemIds.map(async (orderItemId: Pick<OrderItem, 'id'>) => {
           const orderItem = await this.orderItemDb
             .findById(orderItemId)
@@ -66,12 +66,12 @@ export default class OrderController implements OrderClass {
         })
       )
 
-      console.log({ totalPrice })
+      const totalPrice = getOrderPrices.reduce((acc, cur) => acc + cur, 0)
 
       if (!orderItemIds) throw new CustomError('issue fetching one or more order-item-id')
       const order = await this.orderDb.create({ ...req.body, orderItems: orderItemIds, totalPrice })
       if (!order) throw new CustomError('issue creating order')
-      res.json({ success: true, message: 'order created successfully', order })
+      res.status(200).json({ success: true, message: 'order created successfully', order })
     } catch (error) {
       next(error)
     }
@@ -81,7 +81,7 @@ export default class OrderController implements OrderClass {
     try {
       const order = await this.orderDb.findByIdAndUpdate(req.params.id, req.body, { new: true })
       if (!order) throw new CustomError(`issue updating order with id: ${req.params.id}`)
-      res.json({ success: true, message: 'order updated successfully', order })
+      res.status(200).json({ success: true, message: 'order updated successfully', order })
     } catch (error) {
       next(error)
     }
@@ -95,7 +95,22 @@ export default class OrderController implements OrderClass {
           await this.orderItemDb.findByIdAndDelete(orderItem)
         })
       })
-      res.json({ success: true, message: 'order deleted successfully' })
+      res.status(200).json({ success: true, message: 'order deleted successfully' })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  getTotalSales = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const totalSales = await this.orderDb.aggregate([
+        { $group: { _id: null, totalSales: { $sum: '$totalPrice' } } }
+      ])
+      if (!totalSales)
+        throw new CustomError('issue calculating the total sales of order collection')
+      res
+        .status(200)
+        .json({ success: true, message: `the total sales for orders is ${totalSales}`, totalSales })
     } catch (error) {
       next(error)
     }

@@ -44,19 +44,11 @@ export default class UserController implements UserClass {
   createUser = async (req: Request, res: Response) => {
     try {
       const hashedPassword = await hashPasswordBcrypt(req.body.password)
-      const user: User = await this.userDb.create({
-        name: req.body.name,
-        email: req.body.email,
-        password: hashedPassword,
-        phone: req.body.phone,
-        isAdmin: req.body.isAdmin,
-        street: req.body.street,
-        apartment: req.body.apartment,
-        city: req.body.city,
-        zip: req.body.zip,
-        country: req.body.country
-      })
-      res.status(200).json({ success: true, message: 'user created successfully', user })
+      const user: User = await this.userDb.create({ ...req.body, password: hashedPassword })
+      if (!user) throw new CustomError('issue creating user')
+      const token = generateAuthToken(user)
+      res.set('x-auth-token', token)
+      res.status(200).json({ success: true, message: 'user created successfully', user, token })
     } catch (error) {
       res.status(500).json({
         success: false,
@@ -70,7 +62,7 @@ export default class UserController implements UserClass {
       const user: User = await this.userDb.findByIdAndUpdate(req.params.id, req.body, {
         new: true
       })
-
+      if (!user) throw new CustomError(`issue updating user with id: ${req.params.id}`)
       res.status(200).json({ success: true, message: 'user updated successfully', user })
     } catch (error) {
       res.status(500).json({
@@ -83,7 +75,7 @@ export default class UserController implements UserClass {
   deleteUser = async (req: Request, res: Response) => {
     try {
       const user: User = await this.userDb.findByIdAndDelete(req.params.id)
-
+      if (!user) throw new CustomError(`issue deleting user with id: ${req.params.id}`)
       res.status(200).json({ success: true, message: 'user deleted successfully', user })
     } catch (error) {
       res.status(500).json({
@@ -94,10 +86,6 @@ export default class UserController implements UserClass {
   }
 
   // AUTHORIZATION METHODS
-
-  register = async (_req: Request, res: Response) => {
-    res.send('register')
-  }
 
   login = async (req: Request, res: Response) => {
     try {
@@ -118,12 +106,8 @@ export default class UserController implements UserClass {
         return
       }
       const token = generateAuthToken(user)
-      res.status(200).json({
-        success: true,
-        message: 'user logged in successfully',
-        user,
-        token
-      })
+      res.set('x-auth-token', token)
+      res.status(200).json({ success: true, message: 'user logged in successfully', user, token })
     } catch (error) {
       res.status(500).json({
         success: false,
