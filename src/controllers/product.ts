@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from 'express'
 import { DbModel } from '../types/shared'
-import { Product, ProductClass, ProductFilters } from '../types/product'
+import { Product, ProductClass, ProductFilters, MulterImageFiles } from '../types/product'
 import { Category } from '../types/category'
 import { CustomError } from '../utils/customErrors.js'
+import { buildImgUploadPath } from '../utils/helperFns.js'
 
 export default class ProductController implements ProductClass {
   constructor(
@@ -34,7 +35,8 @@ export default class ProductController implements ProductClass {
       ).populate('category')
       if (!product) throw new CustomError('issue finding product by id')
       res.status(200).json({ success: true, product })
-    } catch (error) {
+    } catch (err) {
+      const error = err as CustomError
       next(error)
     }
   }
@@ -45,22 +47,11 @@ export default class ProductController implements ProductClass {
       if (!category) throw new CustomError(`issue finding category id: ${req.body.category}`)
       if (!req.file) throw new CustomError('issue uploading image file')
 
-      const basePath: string = req.protocol
-      const host: string = req.get('host')
-      const uploadPath = 'public/upload'
+      const { basePath, host, uploadPath } = buildImgUploadPath(req)
 
       const product: Product = await this.productDb.create({
-        name: req.body.name,
-        description: req.body.description,
-        richDescription: req.body.richDescription,
-        image: `${basePath}://${host}/${uploadPath}/${req.file.filename}`,
-        brand: req.body.brand,
-        price: req.body.price,
-        category: req.body.category,
-        countInStock: req.body.countInStock,
-        rating: req.body.rating,
-        numReviews: req.body.numReviews,
-        isFeatured: req.body.isFeatured
+        ...req.body,
+        image: `${basePath}://${host}/${uploadPath}/${req.file.filename}`
       })
 
       if (!product) throw new CustomError('issue creating product')
@@ -72,9 +63,18 @@ export default class ProductController implements ProductClass {
 
   updateProduct = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const product: Product = await this.productDb.findByIdAndUpdate(req.params.id, req.body, {
-        new: true
-      })
+      const { basePath, host, uploadPath } = buildImgUploadPath(req)
+      const existingProduct = await this.productDb.findById(req.params.id)
+      if (!existingProduct)
+        throw new CustomError(`issue fetching existing product with id: ${req.params.id}`)
+      const updateImage = req.file
+        ? `${basePath}://${host}/${uploadPath}/${req.file.filename}`
+        : existingProduct.image
+      const product: Product = await this.productDb.findByIdAndUpdate(
+        req.params.id,
+        { ...req.body, image: updateImage },
+        { new: true }
+      )
       if (!product) throw new CustomError('issue updating product')
       res.status(200).json({ success: true, message: 'product updated successfully', product })
     } catch (error) {
@@ -94,12 +94,15 @@ export default class ProductController implements ProductClass {
 
   uploadImageGallery = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const files = req.files
+      const { basePath, host, uploadPath } = buildImgUploadPath(req)
+      const files: MulterImageFiles = req.files
       if (!files) throw new CustomError('issue in upload files method')
-      const uploadedFiles = (files as Express.Multer.File[]).map((file) => file.filename)
+      const uploadedImages: string[] = (files as Express.Multer.File[]).map(
+        (file) => `${basePath}://${host}/${uploadPath}/${file.filename}`
+      )
       const product: Product = await this.productDb.findByIdAndUpdate(
         req.params.id,
-        { images: uploadedFiles },
+        { images: uploadedImages },
         { new: true }
       )
       res

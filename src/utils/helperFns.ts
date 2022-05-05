@@ -1,6 +1,8 @@
 import bcrypt from 'bcryptjs'
+import { Request } from 'express'
 import jwt, { JwtPayload, Secret } from 'jsonwebtoken'
 import { User } from '../types/user'
+import { ImageUploadPath } from '../types/shared'
 
 const { compare, hash } = bcrypt
 const { sign, verify } = jwt
@@ -31,4 +33,16 @@ export const generateAuthToken = (user: Partial<User>) => {
   }
   const exp: { expiresIn: string } = { expiresIn: process.env.ACCESS_TOKEN_EXP }
   return sign(credentials, process.env.ACCESS_TOKEN_SECRET, exp)
+}
+
+export const buildImgUploadPath = (req: Request): ImageUploadPath => {
+  const basePath: string = req.protocol
+  const host: string = req.get('host')
+  const uploadPath = 'public/uploads'
+
+  return {
+    basePath,
+    host,
+    uploadPath
+  }
 }

@@ -24,9 +24,12 @@ const router: Router = express.Router()
 router.get('/', getProducts)
 router.get('/get/featured/:count', getFeaturedProducts)
 router.get('/:id', getProduct)
+
 router.post('/', uploadImage, authenticate, createProduct)
-router.put('/:id', authenticate, updateProduct)
-router.put('/upload/image-gallery/:', uploadImages, authenticate, uploadImageGallery)
+
+router.put('/:id', uploadImage, authenticate, updateProduct)
+router.put('/upload/gallery/:id', uploadImages, authenticate, uploadImageGallery)
+
 router.delete('/:id', authenticate, deleteProduct)
 
 // ADMIN ROUTES
