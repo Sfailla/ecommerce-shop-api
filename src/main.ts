@@ -2,7 +2,6 @@ import express, { Application, Request, Response } from 'express'
 import dotenv from 'dotenv'
 import logger from 'morgan'
 import cors from 'cors'
-import multer, { StorageEngine, Multer } from 'multer'
 
 import { makeDbConnection } from './db/index.js'
 import { productRoutes, categoryRoutes, userRoutes, orderRoutes } from './routes/index.js'
@@ -10,20 +9,11 @@ import { errorHandler, notFoundHandler } from './middleware/handlers.js'
 
 const isProduction = process.env.NODE_ENV === 'production'
 
+// initialize env variables
 dotenv.config()
 
+// initialize express
 export const app: Application = express()
-
-const storage: StorageEngine = multer.diskStorage({
-  destination: function (_req: Request, _file: Express.Multer.File, cb) {
-    cb(null, './public/uploads')
-  },
-  filename: function (_req: Request, file: Express.Multer.File, cb) {
-    cb(null, file.originalname.replace(' ', '-'))
-  }
-})
-
-export const upload: Multer = multer({ storage })
 
 // initialize express middleware
 app.use(cors())

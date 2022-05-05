@@ -11,6 +11,7 @@ export interface ProductClass {
   getFeaturedProducts(req: Request, res: Response, next: NextFunction): Promise<void>
   createProduct(req: Request, res: Response, next: NextFunction): Promise<void>
   updateProduct(req: Request, res: Response, next: NextFunction): Promise<void>
+  uploadImageGallery(req: Request, res: Response, next: NextFunction): Promise<void>
   deleteProduct(req: Request, res: Response, next: NextFunction): Promise<void>
 }
 

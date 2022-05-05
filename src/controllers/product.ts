@@ -43,12 +43,17 @@ export default class ProductController implements ProductClass {
     try {
       const category: Category = await this.categoryDb.findById(req.body.category)
       if (!category) throw new CustomError(`issue finding category id: ${req.body.category}`)
+      if (!req.file) throw new CustomError('issue uploading image file')
+
+      const basePath: string = req.protocol
+      const host: string = req.get('host')
+      const uploadPath = 'public/upload'
 
       const product: Product = await this.productDb.create({
         name: req.body.name,
         description: req.body.description,
         richDescription: req.body.richDescription,
-        image: req.body.image,
+        image: `${basePath}://${host}/${uploadPath}/${req.file.filename}`,
         brand: req.body.brand,
         price: req.body.price,
         category: req.body.category,
@@ -57,6 +62,7 @@ export default class ProductController implements ProductClass {
         numReviews: req.body.numReviews,
         isFeatured: req.body.isFeatured
       })
+
       if (!product) throw new CustomError('issue creating product')
       res.status(200).json({ success: true, message: 'product created successfully', product })
     } catch (error) {
@@ -86,6 +92,24 @@ export default class ProductController implements ProductClass {
     }
   }
 
+  uploadImageGallery = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const files = req.files
+      if (!files) throw new CustomError('issue in upload files method')
+      const uploadedFiles = (files as Express.Multer.File[]).map((file) => file.filename)
+      const product: Product = await this.productDb.findByIdAndUpdate(
+        req.params.id,
+        { images: uploadedFiles },
+        { new: true }
+      )
+      res
+        .status(200)
+        .json({ success: true, message: 'images have been successfully uploaded', product })
+    } catch (error) {
+      next(error)
+    }
+  }
+
   getFeaturedProducts = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const count: number = req.params.count ? Number(req.params.count) : 0
@@ -104,13 +128,11 @@ export default class ProductController implements ProductClass {
     try {
       const productCount: number = (await this.productDb.countDocuments()) || 0
       if (!productCount) throw new CustomError('issue finding product count')
-      res
-        .status(200)
-        .json({
-          success: true,
-          message: `product count is ${productCount}`,
-          itemCount: productCount
-        })
+      res.status(200).json({
+        success: true,
+        message: `product count is ${productCount}`,
+        itemCount: productCount
+      })
     } catch (error) {
       next(error)
     }
