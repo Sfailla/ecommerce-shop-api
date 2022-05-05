@@ -1,6 +1,10 @@
 import { NextFunction, Request, Response } from 'express'
 import { Category } from './category'
 
+export type MulterImageFiles =
+  | { [fieldname: string]: Express.Multer.File[] }
+  | Express.Multer.File[]
+
 export interface ProductFilters {
   category?: string | string[]
 }

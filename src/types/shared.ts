@@ -8,3 +8,9 @@ export interface UserPayload {
   email: string
   isAdmin: boolean
 }
+
+export interface ImageUploadPath {
+  host: string
+  basePath: string
+  uploadPath: string
+}
