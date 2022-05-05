@@ -9,10 +9,10 @@ import { makeDbConnection } from './db/index.js'
 import { productRoutes, categoryRoutes, userRoutes, orderRoutes } from './routes/index.js'
 import { errorHandler, notFoundHandler } from './middleware/handlers.js'
 
-const isProduction = process.env.NODE_ENV === 'production'
+export const isProduction = process.env.NODE_ENV === 'production'
 // workaround becuase __dirname is not defined in ES module scope
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+export const __filename = fileURLToPath(import.meta.url)
+export const __dirname = path.dirname(__filename)
 
 // initialize env variables
 dotenv.config()
@@ -28,7 +28,7 @@ app.use(express.json())
 
 makeDbConnection()
 
-app.use('/public/uploads', express.static(path.join(__dirname, '/public/uploads')))
+app.use('/public/uploads', express.static(path.join(__dirname, '../../public/uploads')))
 
 // initialize routes
 app.use('/api/v1/products', productRoutes)
