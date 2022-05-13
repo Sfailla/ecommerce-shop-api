@@ -1,13 +1,8 @@
-import mongoose from 'mongoose'
+import mongoose, { ConnectOptions } from 'mongoose'
 import { CustomError } from '../utils/customErrors.js'
 
-interface MongooseOptions {
-  connectTimeoutMS: number
-  dbName?: string
-}
-
 export const makeDbConnection: () => Promise<void> = async () => {
-  const mongooseOptions: MongooseOptions = {
+  const mongooseOptions: ConnectOptions = {
     connectTimeoutMS: 1000
   }
 

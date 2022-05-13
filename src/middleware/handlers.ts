@@ -24,7 +24,12 @@ export const errorHandler = (
   const { code, status, name, message, value, stack } = error as unknown as CustomError
 
   res.status(status || 500).json({
-    error: { code, name, status, message, value, stack }
+    code,
+    name,
+    status,
+    message,
+    value,
+    stack
   })
 }
 
