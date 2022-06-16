@@ -53,7 +53,7 @@ export default class CategoryController implements CategoryClass {
   deleteCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const category: Category = await this.categoryDb.findByIdAndDelete(req.params.id)
-      if (!category) throw new CustomError('issue deleting category by id')
+      if (!category) throw new CustomError(`issue deleting category with id: ${req.params.id}`)
       res.status(200).json({ success: true, message: 'category deleted successfully', category })
     } catch (error) {
       next(error)

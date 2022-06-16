@@ -3,7 +3,7 @@ import express, { Router } from 'express'
 import { CategoryController } from '../controllers/index.js'
 import { CategoryClass } from '../types/category.js'
 import { CategoryModel } from '../models/index.js'
-import { authenticate } from '../middleware/index.js'
+// import { authenticate } from '../middleware/index.js'
 
 const categoryController: CategoryClass = new CategoryController(CategoryModel)
 
@@ -16,10 +16,10 @@ router.get('/', getCategories)
 
 router.get('/:id', getCategory)
 
-router.post('/', authenticate, createCategory)
+router.post('/', createCategory)
 
-router.put('/:id', authenticate, updateCategory)
+router.put('/:id', updateCategory)
 
-router.delete('/:id', authenticate, deleteCategory)
+router.delete('/:id', deleteCategory)
 
 export default router

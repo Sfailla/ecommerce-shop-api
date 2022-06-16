@@ -25,14 +25,14 @@ router.get('/', getProducts)
 router.get('/get/featured/:count', getFeaturedProducts)
 router.get('/:id', getProduct)
 
-router.post('/', uploadImage, authenticate, createProduct)
+router.post('/', uploadImage, createProduct)
 
-router.put('/:id', uploadImage, authenticate, updateProduct)
-router.put('/upload/gallery/:id', uploadImages, authenticate, uploadImageGallery)
+router.put('/:id', uploadImage, updateProduct)
+router.put('/upload/gallery/:id', uploadImages, uploadImageGallery)
 
-router.delete('/:id', authenticate, deleteProduct)
+router.delete('/:id', deleteProduct)
 
 // ADMIN ROUTES
-router.get('/get/count', authenticate, administrator, getProductCount)
+router.get('/get/count', administrator, getProductCount)
 
 export default router
