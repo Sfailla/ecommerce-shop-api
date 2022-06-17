@@ -3,7 +3,7 @@ import express, { Router } from 'express'
 import { ProductController } from '../controllers/index.js'
 import { ProductClass } from '../types/product.js'
 import { ProductModel, CategoryModel } from '../models/index.js'
-import { administrator, authenticate } from '../middleware/index.js'
+import { administrator } from '../middleware/index.js'
 import { uploadImage, uploadImages } from '../utils/upload.js'
 
 const productController: ProductClass = new ProductController(ProductModel, CategoryModel)
