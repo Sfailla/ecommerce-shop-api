@@ -115,7 +115,7 @@ export default class OrderController implements OrderClass {
       const totalSales = Number(getTotalSales.map((sales) => sales.totalSales).join(''))
       if (!totalSales)
         throw new CustomError('issue calculating the total sales of order collection')
-      console.log(totalSales)
+
       res
         .status(200)
         .json({ success: true, message: `the total sales for orders is ${totalSales}`, totalSales })

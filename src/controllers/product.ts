@@ -43,7 +43,6 @@ export default class ProductController implements ProductClass {
 
   createProduct = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      console.log({ requestBody: req.body, requestFile: req.file })
       const category: Category = await this.categoryDb.findById(req.body.category)
       if (!category) throw new CustomError(`issue finding category id: ${req.body.category}`)
       if (!req.file) throw new CustomError('issue uploading image file')
@@ -54,8 +53,6 @@ export default class ProductController implements ProductClass {
         ...req.body,
         image: `${basePath}://${host}/${uploadPath}/${req.file.filename}`
       })
-
-      console.log({ product })
 
       if (!product) throw new CustomError('issue creating product')
       res.status(200).json({ success: true, message: 'product created successfully', product })
