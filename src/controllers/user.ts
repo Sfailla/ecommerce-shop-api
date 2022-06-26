@@ -58,7 +58,9 @@ export default class UserController implements UserClass {
         new: true
       })
       if (!user) throw new CustomError(`issue updating user with id: ${req.params.id}`)
-      res.status(200).json({ success: true, message: 'user updated successfully', user })
+      res
+        .status(200)
+        .json({ success: true, message: `user: ${user.id} updated successfully`, user })
     } catch (error) {
       next(error)
     }
@@ -68,7 +70,9 @@ export default class UserController implements UserClass {
     try {
       const user: User = await this.userDb.findByIdAndDelete(req.params.id)
       if (!user) throw new CustomError(`issue deleting user with id: ${req.params.id}`)
-      res.status(200).json({ success: true, message: 'user deleted successfully', user })
+      res
+        .status(200)
+        .json({ success: true, message: `user: ${user.id} deleted successfully`, user })
     } catch (error) {
       next(error)
     }

@@ -15,14 +15,6 @@ export interface User {
   name: string
   email: string
   password: string
-  createdAt: Date
-}
-
-export interface User {
-  id: string
-  name: string
-  email: string
-  password: string
   phone: string
   street: string
   apartment: string
